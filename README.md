@@ -64,7 +64,7 @@ turn/end (completed) ──► [continue] 有 todo → 注入状态续跑(计数
 ### 安装(GitHub 发布版,推荐)
 
 ```bash
-dsh plugin --profile web add "github:Dis2017/dsh-run-guard#v0.1.18"
+dsh plugin --profile web add "github:Dis2017/dsh-run-guard#v0.1.19"
 ```
 
 `dsh plugin add` 检测到包内 `dsh.bundle` 声明后自动挂载:追加进 profile 的 bundles 列表,插件行由 bundle patch 提供。
@@ -73,7 +73,7 @@ dsh plugin --profile web add "github:Dis2017/dsh-run-guard#v0.1.18"
 
 1. 重启 GUI
 2. 打开 **设置 → 插件 → Plugin list**,确认 `dsh-run-guard` 为 **Mounted / Enabled**
-3. 打开 **设置 → Run guard**,可编辑全部配置项(总开关 / Guard 死循环拦截 / Continue 自动继续),保存后落盘、重启生效
+3. 打开 **设置 → Run guard**,可编辑全部配置项(总开关 / Guard 死循环拦截 / Continue 自动继续),保存后落盘并实时更新运行中的插件
 4. 正常使用:死循环会被 1~2 秒内中断并自动重试(页面可见);「想完就停」后会自动收到续跑提示
 
 ### 开发模式(绝对路径挂载,改代码即时生效)
@@ -113,7 +113,7 @@ pnpm install
 pnpm test
 ```
 
-54 个单元/集成测试,覆盖:
+76 个单元/集成测试,覆盖:
 
 - **guard 检测器**:死循环触发、正常流不误报、硬闸、滑动窗口精确性、极端配置
 - **中断恢复**:guard/上游错误自动重试、超限停止、turn 隔离、白名单外与持久错误不干预
@@ -157,7 +157,7 @@ dsh-run-guard/
 │   ├── index.js      # 合并入口:嵌套配置 + 按子开关挂载
 │   ├── guard.js      # 刹车 half:检测器 + llm/stream 拦截 + 中断文案
 │   └── continue.js   # 油门 half:自动继续 + pause_work
-├── test/             # 54 个测试(guard / stream / continue / index / integration)
+├── test/             # 76 个测试(guard / stream / continue / index / integration / settings)
 ├── cordis.patch.yml  # bundle patch(dsh plugin add 自动挂载)
 └── scripts/
 ```
@@ -167,15 +167,15 @@ dsh-run-guard/
 ```bash
 git commit -m "fix: ..."
 git push origin main
-git tag v0.1.18 && git push origin v0.1.18
-dsh plugin --profile web add "github:Dis2017/dsh-run-guard#v0.1.18"   # 或 remove + add 升级
+git tag v0.1.19 && git push origin v0.1.19
+dsh plugin --profile web add "github:Dis2017/dsh-run-guard#v0.1.19"   # 或 remove + add 升级
 ```
 
 ### 依赖约定(重要)
 
-- `@deepseek-ai/*` → **peerDependencies**(宿主提供单例),绝不能放 `dependencies`
-- 业务依赖(裸 `schemastery` 等)→ `dependencies`
-- 测试用的 dsh 依赖 → `devDependencies`(镜像 peer 版本,不随安装)
+- DSH 运行时包(`@deepseek-ai/cordis`、`@deepseek-ai/dsh-*`) → **peerDependencies**(宿主提供单例),绝不能放 `dependencies`
+- 独立业务依赖(`@deepseek-ai/schemastery` 等) → `dependencies`
+- 测试用的 DSH 依赖 → `devDependencies`(镜像 peer 版本,不随插件安装)
 
 违反此约定会导致上述 `prepare` 错误。
 
